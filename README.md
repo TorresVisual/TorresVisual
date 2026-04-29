@@ -5,7 +5,7 @@
 
 ### Tech Stack & Tools
 <p align="center">
-  <a href="https://skillicons.dev">
+  <a>
     <img src="https://skillicons.dev/icons?i=cpp,c,py,cmake,visualstudio,vscode,git,github,windows" alt="My Skills" />
   </a>
 </p>
