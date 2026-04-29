@@ -35,7 +35,8 @@ jobs:
         uses: readme-tools/github-readme-stats-action@v1
         with:
             card: wakatime
-            options: username=TorresVisual&layout=compact&theme=transparent
+            options: username=TorresVisual&layout=compact&langs_count=8&theme=transparent
+            path: profile/wakatime.svg
             token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit cards
