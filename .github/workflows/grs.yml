@@ -19,7 +19,7 @@ jobs:
         uses: readme-tools/github-readme-stats-action@v1
         with:
           card: stats
-          options: username=${{ github.repository_owner }}&show_icons=true&theme=transparent
+          options: username=${{ github.repository_owner }}&show_icons=true&include_all_commits=true&theme=transparent
           path: profile/stats.svg
           token: ${{ secrets.PAT_TOKEN }}
 
@@ -27,7 +27,7 @@ jobs:
         uses: readme-tools/github-readme-stats-action@v1
         with:
           card: top-langs
-          options: username=${{ github.repository_owner }}&layout=compact&langs_count=8&stats_format=bytes&theme=transparent
+          options: username=${{ github.repository_owner }}&layout=default&langs_count=8&stats_format=bytes&theme=transparent
           path: profile/top-langs.svg
           token: ${{ secrets.PAT_TOKEN }}
 
