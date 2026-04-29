@@ -21,21 +21,21 @@ jobs:
           card: stats
           options: username=${{ github.repository_owner }}&show_icons=true&theme=transparent
           path: profile/stats.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Generate top languages card
         uses: readme-tools/github-readme-stats-action@v1
         with:
           card: top-langs
-          options: username=${{ github.repository_owner }}&layout=compact&langs_count=8&stats_format=bytes
+          options: username=${{ github.repository_owner }}&layout=compact&langs_count=8&stats_format=bytes&theme=transparent
           path: profile/top-langs.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Generate WakaTime Card
         uses: readme-tools/github-readme-stats-action@v1
         with:
             card: wakatime
-            options: username=TorresVisual&layout=compact
+            options: username=TorresVisual&layout=compact&theme=transparent
             token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit cards
