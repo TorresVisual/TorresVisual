@@ -4,10 +4,10 @@
 </div>
 
 ### About me
-- 🎓 2nd-semester Computer Science student.
-- 💻 Working extensively with **C++**, focusing on low-level programming and game modifications.
-- 🚀 Aspiring to work in the **Game Development** industry.
-- 🌱 Currently diving deeper into memory management, algorithms, and engine architectures.
+- 2nd-semester Computer Science student.
+- Working extensively with **C++**, focusing on low-level programming and game modifications.
+- Aspiring to work in the **Game Development** industry.
+- Currently diving deeper into memory management, algorithms, and engine architectures.
 
 <br/>
 
