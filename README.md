@@ -1,14 +1,6 @@
-<div align="center">
-  <h1>Hello World, I'm Torres</h1>
-  <h3>CS Student</h3>
-</div>
-
 ### About me
 - 2nd-semester Computer Science student.
 - Working extensively with **C++**, focusing on low-level programming and game modifications.
-- Aspiring to work in the **Game Development** industry.
-- Currently diving deeper into memory management, algorithms, and engine architectures.
-
 <br/>
 
 ### Tech Stack & Tools
@@ -17,8 +9,6 @@
     <img src="https://skillicons.dev/icons?i=cpp,c,py,cmake,visualstudio,vscode,git,github,windows" alt="My Skills" />
   </a>
 </p>
-
-<br/>
 
 ### My GitHub Stats
 
@@ -29,8 +19,6 @@
   <br/>
   <img src="./profile/wakatime.svg" alt="Wakatime" />
 </div>
-
-<br/>
 
 ### Connect with me
 <p align="center">
