@@ -1,6 +1,8 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=30&pause=1000&color=8B89CC&center=true&vCenter=true&width=600&lines=Hi,+I'm+Torres+👋;Computer+Science+Student;Low-level+C%2B%2B+Programmer;Game+Modification+Enthusiast" alt="Typing SVG" />
+<h1 align="center">Hi, I'm Torres!</h1>
+<h3 align="center">Computer Science Student | Low-level C++ Programmer</h3>
+<p align="center"><i>Game Modification Enthusiast</i></p>
 
 <br/>
 
