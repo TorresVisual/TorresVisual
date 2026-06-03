@@ -18,6 +18,7 @@
   <br/>
   <br/>
   <img src="./profile/wakatime.svg" alt="Wakatime" />
+  <a href="https://wakatime.com/@e1f852fb-1f4c-44bc-949c-9372b376e156"><img src="https://wakatime.com/badge/user/e1f852fb-1f4c-44bc-949c-9372b376e156.svg" alt="Total time coded since Apr 9 2025" /></a>
 </div>
 
 ### Connect with me
