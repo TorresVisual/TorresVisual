@@ -1,7 +1,7 @@
 <div align="center">
 
 <h1 align="center">Hi, I'm Torres!</h1>
-<h3 align="center">Computer Science Student | Low-level C++ Programmer</h3>
+<h3 align="center">Computer Science Student | Systems Programmer & Tool Builder</h3>
 <p align="center"><i>Game Modification Enthusiast</i></p>
 
 <br/>
