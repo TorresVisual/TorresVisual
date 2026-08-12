@@ -75,9 +75,10 @@ def follower_getter(username):
 
 
 def graph_repos_stars(count_type, owner_affiliation):
-    """Returns either the total repository count or total star count for
-    the configured user, for the given ownership affiliation(s)."""
-    if count_type not in ("repos", "stars"):
+    """Returns the total repository count, total star count, or total disk
+    usage (in KB) for the configured user, for the given ownership
+    affiliation(s)."""
+    if count_type not in ("repos", "stars", "disk_usage"):
         raise ValueError(f"unknown count_type: {count_type}")
     query = """
     query ($owner_affiliation: [RepositoryAffiliation], $login: String!) {
@@ -90,6 +91,7 @@ def graph_repos_stars(count_type, owner_affiliation):
                             stargazers {
                                 totalCount
                             }
+                            diskUsage
                         }
                     }
                 }
@@ -101,7 +103,32 @@ def graph_repos_stars(count_type, owner_affiliation):
     data = request.json()["data"]["user"]["repositories"]
     if count_type == "repos":
         return data["totalCount"]
-    return sum(edge["node"]["stargazers"]["totalCount"] for edge in data["edges"])
+    if count_type == "stars":
+        return sum(edge["node"]["stargazers"]["totalCount"] for edge in data["edges"])
+    return sum(edge["node"]["diskUsage"] or 0 for edge in data["edges"])
+
+
+def gist_counter(username):
+    """Returns the number of public gists owned by the given user."""
+    query = """
+    query($login: String!){
+        user(login: $login) {
+            gists(privacy: PUBLIC) {
+                totalCount
+            }
+        }
+    }"""
+    request = simple_request(gist_counter.__name__, query, {"login": username})
+    return int(request.json()["data"]["user"]["gists"]["totalCount"])
+
+
+def format_disk_usage(kilobytes):
+    """Formats a disk usage size (in KB, as returned by GitHub's diskUsage
+    field) as a human-readable MB/GB string."""
+    megabytes = kilobytes / 1024
+    if megabytes >= 1024:
+        return f"{megabytes / 1024:.1f} GB"
+    return f"{megabytes:.1f} MB"
 
 
 def flush_cache(edges, cache_file):
@@ -314,17 +341,23 @@ def commit_counter(cache_file):
     return sum(int(line.split()[2]) for line in data)
 
 
-def wakatime_total(api_key):
-    """Returns the human-readable all-time coding duration from WakaTime."""
+def wakatime_stats(api_key):
+    """Returns (total, daily_average, top_language) from WakaTime's
+    all-time stats: human-readable total coding time, human-readable
+    average coding time per day, and the name of the most-used language
+    ('N/A' if no language data is available)."""
     response = requests.get(
-        "https://wakatime.com/api/v1/users/current/all_time_since_today",
+        "https://wakatime.com/api/v1/users/current/stats/all_time",
         params={"api_key": api_key},
     )
     if response.status_code != 200:
         raise Exception(
-            "wakatime_total() has failed with a", response.status_code, response.text
+            "wakatime_stats() has failed with a", response.status_code, response.text
         )
-    return response.json()["data"]["text"]
+    data = response.json()["data"]
+    languages = data.get("languages") or []
+    top_language = languages[0]["name"] if languages else "N/A"
+    return data["human_readable_total"], data["human_readable_daily_average"], top_language
 
 
 def svg_overwrite(
@@ -335,20 +368,28 @@ def svg_overwrite(
     contrib_data,
     follower_data,
     loc_data,
-    wakatime_data,
+    wakatime_total,
+    wakatime_daily_average,
+    wakatime_top_language,
+    gist_data,
+    disk_usage_data,
 ):
     """Parses an SVG template and fills in the live stats."""
     tree = etree.parse(filename)
     root = tree.getroot()
-    justify_format(root, "repo_data", repo_data, 6)
-    find_and_replace(root, "contrib_data", str(contrib_data))
+    justify_format(root, "repo_data", repo_data, 10)
+    justify_format(root, "contrib_data", contrib_data, 10)
     justify_format(root, "star_data", star_data, 10)
-    justify_format(root, "commit_data", commit_data, 14)
     justify_format(root, "follower_data", follower_data, 10)
+    justify_format(root, "commit_data", commit_data, 14)
     justify_format(root, "loc_data", loc_data[2], 10)
     find_and_replace(root, "loc_add", format_number(loc_data[0]))
     justify_format(root, "loc_del", loc_data[1], 8)
-    justify_format(root, "wakatime_data", wakatime_data, 14)
+    justify_format(root, "wakatime_data", wakatime_total, 14)
+    justify_format(root, "wakatime_avg_data", wakatime_daily_average, 14)
+    justify_format(root, "wakatime_lang_data", wakatime_top_language, 14)
+    justify_format(root, "gist_data", gist_data, 10)
+    justify_format(root, "disk_data", disk_usage_data, 10)
     tree.write(filename, encoding="utf-8", xml_declaration=True)
 
 
@@ -367,8 +408,12 @@ def main():
     contrib_data = graph_repos_stars(
         "repos", ["OWNER", "COLLABORATOR", "ORGANIZATION_MEMBER"]
     )
+    disk_usage_kb = graph_repos_stars("disk_usage", ["OWNER"])
     follower_data = follower_getter(USER_NAME)
-    wakatime_data = wakatime_total(WAKATIME_API_KEY)
+    gist_data = gist_counter(USER_NAME)
+    wakatime_total, wakatime_daily_average, wakatime_top_language = wakatime_stats(
+        WAKATIME_API_KEY
+    )
 
     for svg_file in ("dark_mode.svg", "light_mode.svg"):
         svg_overwrite(
@@ -379,7 +424,11 @@ def main():
             contrib_data,
             follower_data,
             loc_data[:3],
-            wakatime_data,
+            wakatime_total,
+            wakatime_daily_average,
+            wakatime_top_language,
+            gist_data,
+            format_disk_usage(disk_usage_kb),
         )
 
 
