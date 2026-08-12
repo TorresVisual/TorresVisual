@@ -1,1 +1,12 @@
 .antigravitycli/
+
+# Added by Null IDE Auto-Gitignore
+__pycache__/
+.pytest_cache/
+
+# Local dev-only artifacts (kept locally, not published to this public repo)
+tests/
+scripts/
+docs/
+assets/
+conftest.py
