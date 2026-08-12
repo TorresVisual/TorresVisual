@@ -1,5 +1,3 @@
-.antigravitycli/
-
 # Added by Null IDE Auto-Gitignore
 __pycache__/
 .pytest_cache/
@@ -10,3 +8,4 @@ scripts/
 docs/
 assets/
 conftest.py
+.null/
