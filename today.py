@@ -203,7 +203,7 @@ def graph_repos_stars(count_type, owner_affiliation):
 def starred_repos_counter(username):
     """Returns the number of repositories the given user has starred, or 0
     if the token lacks the scope to read it (a fine-grained PAT needs the
-    "Starring" account permission; see gist_counter)."""
+    "Starring" account permission)."""
     query = """
     query($login: String!){
         user(login: $login) {
@@ -217,6 +217,44 @@ def starred_repos_counter(username):
     )
     starred = request.json()["data"]["user"]["starredRepositories"]
     return starred["totalCount"] if starred else 0
+
+
+def contribution_streak(username):
+    """Returns the current daily-contribution streak, in days, from the
+    last year of GitHub contribution calendar data. If today has no
+    contributions yet, the streak is counted from yesterday backward,
+    since today isn't over."""
+    query = """
+    query($login: String!){
+        user(login: $login) {
+            contributionsCollection {
+                contributionCalendar {
+                    weeks {
+                        contributionDays {
+                            date
+                            contributionCount
+                        }
+                    }
+                }
+            }
+        }
+    }"""
+    request = simple_request(contribution_streak.__name__, query, {"login": username})
+    calendar = request.json()["data"]["user"]["contributionsCollection"][
+        "contributionCalendar"
+    ]
+    days = [day for week in calendar["weeks"] for day in week["contributionDays"]]
+    days.sort(key=lambda day: day["date"])
+
+    if days and days[-1]["contributionCount"] == 0:
+        days = days[:-1]
+
+    streak = 0
+    for day in reversed(days):
+        if day["contributionCount"] == 0:
+            break
+        streak += 1
+    return streak
 
 
 def format_disk_usage(kilobytes):
@@ -467,6 +505,7 @@ def svg_overwrite(
     disk_usage_data,
     fork_data,
     starred_data,
+    streak_data,
     age_data,
 ):
     """Parses an SVG template and fills in the live stats. Every info row is
@@ -483,6 +522,7 @@ def svg_overwrite(
         ("fork_data", format_number(fork_data)),
         ("follower_data", format_number(follower_data)),
         ("commit_data", format_number(commit_data)),
+        ("streak_data", streak_data),
         ("starred_data", format_number(starred_data)),
         ("disk_data", disk_usage_data),
         ("wakatime_data", wakatime_total),
@@ -519,6 +559,8 @@ def main():
     disk_usage_kb = graph_repos_stars("disk_usage", ["OWNER"])
     follower_data = follower_getter(USER_NAME)
     starred_data = starred_repos_counter(USER_NAME)
+    streak_days = contribution_streak(USER_NAME)
+    streak_data = f"{streak_days} day{format_plural(streak_days)}"
     wakatime_total, wakatime_daily_average, wakatime_top_language = wakatime_stats(
         WAKATIME_API_KEY
     )
@@ -539,6 +581,7 @@ def main():
             format_disk_usage(disk_usage_kb),
             fork_data,
             starred_data,
+            streak_data,
             age_data,
         )
 
