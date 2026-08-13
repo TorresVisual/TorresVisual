@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import os
+import time
 
 import requests
 from dateutil import relativedelta
@@ -10,6 +11,14 @@ HEADERS = {"authorization": "token " + os.environ.get("ACCESS_TOKEN", "")}
 USER_NAME = os.environ.get("USER_NAME", "TorresVisual")
 WAKATIME_API_KEY = os.environ.get("WAKATIME_API_KEY", "")
 BIRTHDAY = datetime.datetime(2007, 5, 17)
+
+# GitHub's GraphQL API occasionally 502s on expensive queries (e.g. walking
+# a repo with a lot of commit history) under transient backend load. These
+# are worth retrying; other statuses (403 anti-abuse, 4xx client errors)
+# are not, and are handled separately by each caller.
+RETRYABLE_STATUS_CODES = {502, 503, 504}
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 2
 
 SVG_NS = "{http://www.w3.org/2000/svg}"
 
@@ -104,13 +113,25 @@ def refill_dot_leaders(root):
             dots.text = dot_leader(around)
 
 
+def post_graphql_with_retry(query, variables):
+    """POSTs a GraphQL query, retrying transient 502/503/504 responses from
+    GitHub's API with a short exponential backoff before giving up."""
+    for attempt in range(MAX_RETRIES):
+        request = requests.post(
+            "https://api.github.com/graphql",
+            json={"query": query, "variables": variables},
+            headers=HEADERS,
+        )
+        if request.status_code not in RETRYABLE_STATUS_CODES:
+            return request
+        if attempt < MAX_RETRIES - 1:
+            time.sleep(RETRY_BACKOFF_SECONDS * (2**attempt))
+    return request
+
+
 def simple_request(func_name, query, variables):
     """Returns a request, or raises an Exception if the response does not succeed."""
-    request = requests.post(
-        "https://api.github.com/graphql",
-        json={"query": query, "variables": variables},
-        headers=HEADERS,
-    )
+    request = post_graphql_with_retry(query, variables)
     if request.status_code == 200:
         return request
     raise Exception(func_name, "has failed with a", request.status_code, request.text)
@@ -301,11 +322,7 @@ def recursive_loc(
         }
     }"""
     variables = {"repo_name": repo_name, "owner": owner, "cursor": cursor}
-    request = requests.post(
-        "https://api.github.com/graphql",
-        json={"query": query, "variables": variables},
-        headers=HEADERS,
-    )
+    request = post_graphql_with_retry(query, variables)
     if request.status_code != 200:
         force_close_file(data, cache_file)
         if request.status_code == 403:
