@@ -200,40 +200,6 @@ def graph_repos_stars(count_type, owner_affiliation):
     return sum(edge["node"]["diskUsage"] or 0 for edge in data["edges"])
 
 
-def gist_counter(username):
-    """Returns the number of public gists owned by the given user, or 0 if
-    the token lacks the scope to read it (a fine-grained PAT needs the
-    "Gists" account permission; GitHub returns this field as null,
-    with an HTTP 200, rather than failing the whole request)."""
-    query = """
-    query($login: String!){
-        user(login: $login) {
-            gists(privacy: PUBLIC) {
-                totalCount
-            }
-        }
-    }"""
-    request = simple_request(gist_counter.__name__, query, {"login": username})
-    gists = request.json()["data"]["user"]["gists"]
-    return gists["totalCount"] if gists else 0
-
-
-def organization_counter(username):
-    """Returns the number of organizations the given user belongs to, or 0
-    if the token lacks the scope to read it (see gist_counter)."""
-    query = """
-    query($login: String!){
-        user(login: $login) {
-            organizations {
-                totalCount
-            }
-        }
-    }"""
-    request = simple_request(organization_counter.__name__, query, {"login": username})
-    organizations = request.json()["data"]["user"]["organizations"]
-    return organizations["totalCount"] if organizations else 0
-
-
 def starred_repos_counter(username):
     """Returns the number of repositories the given user has starred, or 0
     if the token lacks the scope to read it (a fine-grained PAT needs the
@@ -498,10 +464,8 @@ def svg_overwrite(
     wakatime_total,
     wakatime_daily_average,
     wakatime_top_language,
-    gist_data,
     disk_usage_data,
     fork_data,
-    org_data,
     starred_data,
     age_data,
 ):
@@ -517,10 +481,8 @@ def svg_overwrite(
         ("contrib_data", format_number(contrib_data)),
         ("star_data", format_number(star_data)),
         ("fork_data", format_number(fork_data)),
-        ("org_data", format_number(org_data)),
         ("follower_data", format_number(follower_data)),
         ("commit_data", format_number(commit_data)),
-        ("gist_data", format_number(gist_data)),
         ("starred_data", format_number(starred_data)),
         ("disk_data", disk_usage_data),
         ("wakatime_data", wakatime_total),
@@ -556,8 +518,6 @@ def main():
     )
     disk_usage_kb = graph_repos_stars("disk_usage", ["OWNER"])
     follower_data = follower_getter(USER_NAME)
-    gist_data = gist_counter(USER_NAME)
-    org_data = organization_counter(USER_NAME)
     starred_data = starred_repos_counter(USER_NAME)
     wakatime_total, wakatime_daily_average, wakatime_top_language = wakatime_stats(
         WAKATIME_API_KEY
@@ -576,10 +536,8 @@ def main():
             wakatime_total,
             wakatime_daily_average,
             wakatime_top_language,
-            gist_data,
             format_disk_usage(disk_usage_kb),
             fork_data,
-            org_data,
             starred_data,
             age_data,
         )
