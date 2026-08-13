@@ -67,11 +67,11 @@ text, tspan {white-space: pre;}
 <tspan x="507.5" y="340.72" class="cc">. </tspan><tspan class="key">Lines of Code</tspan>:<tspan class="cc" id="loc_data_dots"> .............................. </tspan><tspan class="value" id="loc_data">20,028,851</tspan>
 <tspan x="507.5" y="356.39"/><tspan x="962.5" y="356.39" text-anchor="end">(</tspan><tspan class="addColor" id="loc_add">30,170,843</tspan><tspan class="addColor">++</tspan><tspan>,</tspan>
 <tspan x="507.5" y="372.06"/><tspan class="delColor" id="loc_del" x="962.5" y="372.06" text-anchor="end">10,141,992</tspan><tspan class="delColor">--</tspan><tspan>)</tspan>
-<tspan x="507.5" y="387.73" class="cc">. </tspan><tspan class="key">Starred Repos</tspan>:<tspan class="cc" id="starred_data_dots"> ...................................... </tspan><tspan class="value" id="starred_data">11</tspan>
-<tspan x="507.5" y="403.40" class="cc">. </tspan><tspan class="key">Total Disk Usage</tspan>:<tspan class="cc" id="disk_data_dots"> ............................... </tspan><tspan class="value" id="disk_data">1.2 GB</tspan>
-<tspan x="507.5" y="434.74">- WakaTime</tspan> -—————————————————————————————————————————————-
-<tspan x="507.5" y="454.74" class="cc">. </tspan><tspan class="key">Coding Time</tspan>:<tspan class="cc" id="wakatime_data_dots"> ........................... </tspan><tspan class="value" id="wakatime_data">479 hrs 46 mins</tspan>
-<tspan x="507.5" y="470.41" class="cc">. </tspan><tspan class="key">Daily Average</tspan>:<tspan class="cc" id="wakatime_avg_data_dots"> ........................... </tspan><tspan class="value" id="wakatime_avg_data">2 hrs 13 mins</tspan>
-<tspan x="507.5" y="486.08" class="cc">. </tspan><tspan class="key">Top Language</tspan>:<tspan class="cc" id="wakatime_lang_data_dots"> ...................................... </tspan><tspan class="value" id="wakatime_lang_data">C++</tspan>
+<tspan x="507.5" y="403.40" class="cc">. </tspan><tspan class="key">Starred Repos</tspan>:<tspan class="cc" id="starred_data_dots"> ...................................... </tspan><tspan class="value" id="starred_data">11</tspan>
+<tspan x="507.5" y="419.07" class="cc">. </tspan><tspan class="key">Total Disk Usage</tspan>:<tspan class="cc" id="disk_data_dots"> ............................... </tspan><tspan class="value" id="disk_data">1.2 GB</tspan>
+<tspan x="507.5" y="454.74">- WakaTime</tspan> -—————————————————————————————————————————————-
+<tspan x="507.5" y="470.41" class="cc">. </tspan><tspan class="key">Coding Time</tspan>:<tspan class="cc" id="wakatime_data_dots"> ........................... </tspan><tspan class="value" id="wakatime_data">479 hrs 46 mins</tspan>
+<tspan x="507.5" y="486.08" class="cc">. </tspan><tspan class="key">Daily Average</tspan>:<tspan class="cc" id="wakatime_avg_data_dots"> ........................... </tspan><tspan class="value" id="wakatime_avg_data">2 hrs 13 mins</tspan>
+<tspan x="507.5" y="501.75" class="cc">. </tspan><tspan class="key">Top Language</tspan>:<tspan class="cc" id="wakatime_lang_data_dots"> ...................................... </tspan><tspan class="value" id="wakatime_lang_data">C++</tspan>
 </text>
 </svg>
