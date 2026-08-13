@@ -16,44 +16,60 @@ size-adjust: 109%;
 text, tspan {white-space: pre;}
 </style>
 <rect width="985px" height="530px" fill="#ffffff" rx="15"/>
-<text x="15" y="30" fill="#24292f">
-<tspan x="15" y="30">                                          </tspan>
-<tspan x="15" y="50">                   #     #                </tspan>
-<tspan x="15" y="70">                 ###  ####                </tspan>
-<tspan x="15" y="90">               ##########                 </tspan>
-<tspan x="15" y="110">             ###########                  </tspan>
-<tspan x="15" y="130">          ####################            </tspan>
-<tspan x="15" y="150">        ##########################        </tspan>
-<tspan x="15" y="170">        ############################      </tspan>
-<tspan x="15" y="190">       ###############################    </tspan>
-<tspan x="15" y="210">  ###################################     </tspan>
-<tspan x="15" y="230"> ######################################   </tspan>
-<tspan x="15" y="250">########################################  </tspan>
-<tspan x="15" y="270"> ######################################## </tspan>
-<tspan x="15" y="290">  # #########          ################## </tspan>
-<tspan x="15" y="310">     #########          ################# </tspan>
-<tspan x="15" y="330">                        ############### ##</tspan>
-<tspan x="15" y="350">                       ################  #</tspan>
-<tspan x="15" y="370">                   #  ################    </tspan>
-<tspan x="15" y="390">  #                  #################    </tspan>
-<tspan x="15" y="410">   ####       #######################     </tspan>
-<tspan x="15" y="430">     ###############################      </tspan>
-<tspan x="15" y="450">       ###########################        </tspan>
-<tspan x="15" y="470">         #################   ###          </tspan>
-<tspan x="15" y="490">                           #              </tspan>
+<text x="22.5" y="30" fill="#24292f" class="ascii">
+<tspan x="22.5" y="30.00">                                                </tspan>
+<tspan x="22.5" y="48.08">                      #     ##                  </tspan>
+<tspan x="22.5" y="66.15">                    ###   ###                   </tspan>
+<tspan x="22.5" y="84.23">                  ###########                   </tspan>
+<tspan x="22.5" y="102.31">                ############                    </tspan>
+<tspan x="22.5" y="120.38">             ################                   </tspan>
+<tspan x="22.5" y="138.46">           #########################            </tspan>
+<tspan x="22.5" y="156.54">         ##############################         </tspan>
+<tspan x="22.5" y="174.62">         ################################       </tspan>
+<tspan x="22.5" y="192.69">        ###################################     </tspan>
+<tspan x="22.5" y="210.77">   ########################################     </tspan>
+<tspan x="22.5" y="228.85"> ###########################################    </tspan>
+<tspan x="22.5" y="246.92">#############################################   </tspan>
+<tspan x="22.5" y="265.00"> #############################################  </tspan>
+<tspan x="22.5" y="283.08">  ############################################# </tspan>
+<tspan x="22.5" y="301.15">     ##########            #################### </tspan>
+<tspan x="22.5" y="319.23">       #########           #################### </tspan>
+<tspan x="22.5" y="337.31">                           ################## ##</tspan>
+<tspan x="22.5" y="355.38">                          ##################   #</tspan>
+<tspan x="22.5" y="373.46">                         ###################   #</tspan>
+<tspan x="22.5" y="391.54">  #                     ###################     </tspan>
+<tspan x="22.5" y="409.62">   ###            ### ####################      </tspan>
+<tspan x="22.5" y="427.69">    #####################################       </tspan>
+<tspan x="22.5" y="445.77">      ##################################        </tspan>
+<tspan x="22.5" y="463.85">        #########################  ###          </tspan>
+<tspan x="22.5" y="481.92">           ##################    ###            </tspan>
+<tspan x="22.5" y="500.00">                               #                </tspan>
 </text>
-<text x="390" y="150" fill="#24292f">
-<tspan x="390" y="150">torres@visuals</tspan> -——————————————————————-
-<tspan x="390" y="170" class="cc">. </tspan><tspan class="key">Repos</tspan>:<tspan class="cc" id="repo_data_dots"> ...... </tspan><tspan class="value" id="repo_data">0</tspan>
-<tspan x="390" y="190" class="cc">. </tspan><tspan class="key">Contributed</tspan>:<tspan class="cc" id="contrib_data_dots"> ...... </tspan><tspan class="value" id="contrib_data">0</tspan>
-<tspan x="390" y="210" class="cc">. </tspan><tspan class="key">Stars</tspan>:<tspan class="cc" id="star_data_dots"> ...... </tspan><tspan class="value" id="star_data">0</tspan>
-<tspan x="390" y="230" class="cc">. </tspan><tspan class="key">Followers</tspan>:<tspan class="cc" id="follower_data_dots"> ...... </tspan><tspan class="value" id="follower_data">0</tspan>
-<tspan x="390" y="250" class="cc">. </tspan><tspan class="key">Commits</tspan>:<tspan class="cc" id="commit_data_dots"> ...... </tspan><tspan class="value" id="commit_data">0</tspan>
-<tspan x="390" y="270" class="cc">. </tspan><tspan class="key">Lines of Code</tspan>:<tspan class="cc" id="loc_data_dots"> ...... </tspan><tspan class="value" id="loc_data">0</tspan> ( <tspan class="addColor" id="loc_add">0</tspan><tspan class="addColor">++</tspan>, <tspan class="cc" id="loc_del_dots"> </tspan><tspan class="delColor" id="loc_del">0</tspan><tspan class="delColor">--</tspan> )
-<tspan x="390" y="290" class="cc">. </tspan><tspan class="key">Coding Time</tspan>:<tspan class="cc" id="wakatime_data_dots"> ...... </tspan><tspan class="value" id="wakatime_data">0 hrs 0 mins</tspan>
-<tspan x="390" y="310" class="cc">. </tspan><tspan class="key">Daily Average</tspan>:<tspan class="cc" id="wakatime_avg_data_dots"> ...... </tspan><tspan class="value" id="wakatime_avg_data">0 hrs 0 mins</tspan>
-<tspan x="390" y="330" class="cc">. </tspan><tspan class="key">Top Language</tspan>:<tspan class="cc" id="wakatime_lang_data_dots"> ...... </tspan><tspan class="value" id="wakatime_lang_data">N/A</tspan>
-<tspan x="390" y="350" class="cc">. </tspan><tspan class="key">Public Gists</tspan>:<tspan class="cc" id="gist_data_dots"> ...... </tspan><tspan class="value" id="gist_data">0</tspan>
-<tspan x="390" y="370" class="cc">. </tspan><tspan class="key">Total Disk Usage</tspan>:<tspan class="cc" id="disk_data_dots"> ...... </tspan><tspan class="value" id="disk_data">0.0 MB</tspan>
+<text x="507.5" y="30" fill="#24292f" font-size="13px">
+<tspan x="507.5" y="30.00">torres@visuals</tspan> -—————————————————————————————————————————-
+<tspan x="507.5" y="50.00" class="cc">. </tspan><tspan class="key">Uptime</tspan>:<tspan class="cc" id="age_data_dots"> ...................... </tspan><tspan class="value" id="age_data">0 years, 0 months, 0 days</tspan>
+<tspan x="507.5" y="65.67" class="cc">. </tspan><tspan class="key">Model</tspan>:<tspan class="cc" id="model_dots"> ............................................ </tspan><tspan class="value">Male</tspan>
+<tspan x="507.5" y="81.34" class="cc">. </tspan><tspan class="key">Class</tspan>:<tspan class="cc" id="class_dots"> ........................ </tspan><tspan class="value">Computer Science Student</tspan>
+<tspan x="507.5" y="112.68" class="cc">. </tspan><tspan class="key">Languages.Programming</tspan>:<tspan class="cc" id="programming_dots"> .................. </tspan><tspan class="value">C, C++, Python</tspan>
+<tspan x="507.5" y="132.68" class="cc">. </tspan><tspan class="key">Languages.Real</tspan>:<tspan class="cc" id="real_dots"> ........................ </tspan><tspan class="value">German, English</tspan>
+<tspan x="507.5" y="164.02">- Contact</tspan> -——————————————————————————————————————————————-
+<tspan x="507.5" y="184.02" class="cc">. </tspan><tspan class="key">Email</tspan>:<tspan class="cc" id="email_dots"> ......................... </tspan><tspan class="value">torresvisuals@proton.me</tspan>
+<tspan x="507.5" y="199.69" class="cc">. </tspan><tspan class="key">Discord</tspan>:<tspan class="cc" id="discord_dots"> ................................ </tspan><tspan class="value">torres_visuals</tspan>
+<tspan x="507.5" y="231.03">- GitHub Stats</tspan> -—————————————————————————————————————————-
+<tspan x="507.5" y="251.03" class="cc">. </tspan><tspan class="key">Repos</tspan>:<tspan class="cc" id="repo_data_dots"> ............................................... </tspan><tspan class="value" id="repo_data">0</tspan>
+<tspan x="507.5" y="266.70" class="cc">. </tspan><tspan class="key">Contributed</tspan>:<tspan class="cc" id="contrib_data_dots"> ......................................... </tspan><tspan class="value" id="contrib_data">0</tspan>
+<tspan x="507.5" y="282.37" class="cc">. </tspan><tspan class="key">Stars</tspan>:<tspan class="cc" id="star_data_dots"> ............................................... </tspan><tspan class="value" id="star_data">0</tspan>
+<tspan x="507.5" y="298.04" class="cc">. </tspan><tspan class="key">Forks</tspan>:<tspan class="cc" id="fork_data_dots"> ............................................... </tspan><tspan class="value" id="fork_data">0</tspan>
+<tspan x="507.5" y="313.71" class="cc">. </tspan><tspan class="key">Organizations</tspan>:<tspan class="cc" id="org_data_dots"> ....................................... </tspan><tspan class="value" id="org_data">0</tspan>
+<tspan x="507.5" y="329.38" class="cc">. </tspan><tspan class="key">Followers</tspan>:<tspan class="cc" id="follower_data_dots"> ........................................... </tspan><tspan class="value" id="follower_data">0</tspan>
+<tspan x="507.5" y="345.05" class="cc">. </tspan><tspan class="key">Commits</tspan>:<tspan class="cc" id="commit_data_dots"> ............................................. </tspan><tspan class="value" id="commit_data">0</tspan>
+<tspan x="507.5" y="360.72" class="cc">. </tspan><tspan class="key">Lines of Code</tspan>:<tspan class="cc" id="loc_data_dots"> .......................... </tspan><tspan class="value" id="loc_data">0</tspan> ( <tspan class="addColor" id="loc_add">0</tspan><tspan class="addColor">++</tspan>, <tspan class="delColor" id="loc_del">0</tspan><tspan class="delColor">--</tspan> )
+<tspan x="507.5" y="376.39" class="cc">. </tspan><tspan class="key">Public Gists</tspan>:<tspan class="cc" id="gist_data_dots"> ........................................ </tspan><tspan class="value" id="gist_data">0</tspan>
+<tspan x="507.5" y="392.06" class="cc">. </tspan><tspan class="key">Starred Repos</tspan>:<tspan class="cc" id="starred_data_dots"> ....................................... </tspan><tspan class="value" id="starred_data">0</tspan>
+<tspan x="507.5" y="407.73" class="cc">. </tspan><tspan class="key">Total Disk Usage</tspan>:<tspan class="cc" id="disk_data_dots"> ............................... </tspan><tspan class="value" id="disk_data">0.0 MB</tspan>
+<tspan x="507.5" y="439.07">- WakaTime</tspan> -—————————————————————————————————————————————-
+<tspan x="507.5" y="459.07" class="cc">. </tspan><tspan class="key">Coding Time</tspan>:<tspan class="cc" id="wakatime_data_dots"> .............................. </tspan><tspan class="value" id="wakatime_data">0 hrs 0 mins</tspan>
+<tspan x="507.5" y="474.74" class="cc">. </tspan><tspan class="key">Daily Average</tspan>:<tspan class="cc" id="wakatime_avg_data_dots"> ............................ </tspan><tspan class="value" id="wakatime_avg_data">0 hrs 0 mins</tspan>
+<tspan x="507.5" y="490.41" class="cc">. </tspan><tspan class="key">Top Language</tspan>:<tspan class="cc" id="wakatime_lang_data_dots"> ...................................... </tspan><tspan class="value" id="wakatime_lang_data">N/A</tspan>
 </text>
 </svg>

@@ -1,16 +1,53 @@
+import datetime
 import hashlib
 import os
 
 import requests
+from dateutil import relativedelta
 from lxml import etree
 
 HEADERS = {"authorization": "token " + os.environ.get("ACCESS_TOKEN", "")}
 USER_NAME = os.environ.get("USER_NAME", "TorresVisual")
 WAKATIME_API_KEY = os.environ.get("WAKATIME_API_KEY", "")
+BIRTHDAY = datetime.datetime(2007, 5, 17)
+
+SVG_NS = "{http://www.w3.org/2000/svg}"
+
+# The info column is a plain monospace character grid. Every Consolas glyph --
+# including '.', ' ' and '-' -- advances 0.5498em, which the templates'
+# "size-adjust: 109%" scales to 0.599em so Consolas lines up with the
+# DejaVu/Liberation Mono fallback used on machines without it. At the column's
+# 13px that is ~7.79px per character, so x=507.5..962.5 holds exactly 58 of
+# them. That start x (and the ASCII art's x=22.5) center the whole card
+# horizontally: 22.5px on the left of the ASCII art balances the 22.5px
+# between the info column's right edge and the card's 985px width.
+INFO_COLUMN_X = "507.5"
+INFO_COLUMN_CHARS = 58
+MIN_DOTS = 3
+# A blank column either side of the dots, so the leader never touches the
+# colon or the value.
+LEADER_PADDING = " "
 
 
 def format_number(value):
     return f"{value:,}"
+
+
+def format_plural(unit):
+    return "s" if unit != 1 else ""
+
+
+def daily_age(birthday, now=None):
+    """Returns a human-readable age string ('X years, Y months, Z days')
+    as of `now` (defaults to today)."""
+    if now is None:
+        now = datetime.datetime.today()
+    diff = relativedelta.relativedelta(now, birthday)
+    return "{} {}, {} {}, {} {}".format(
+        diff.years, "year" + format_plural(diff.years),
+        diff.months, "month" + format_plural(diff.months),
+        diff.days, "day" + format_plural(diff.days),
+    )
 
 
 def find_and_replace(root, element_id, new_text):
@@ -20,20 +57,51 @@ def find_and_replace(root, element_id, new_text):
         element.text = new_text
 
 
-def justify_format(root, element_id, new_text, length=0):
-    """Updates the element's text and pads the sibling '_dots' element so
-    the value stays right-justified at a fixed column width."""
-    if isinstance(new_text, int):
-        new_text = format_number(new_text)
-    new_text = str(new_text)
-    find_and_replace(root, element_id, new_text)
-    just_len = max(0, length - len(new_text))
-    if just_len <= 2:
-        dot_map = {0: "", 1: " ", 2: ". "}
-        dot_string = dot_map[just_len]
-    else:
-        dot_string = " " + ("." * just_len) + " "
-    find_and_replace(root, f"{element_id}_dots", dot_string)
+def dot_leader(text_around_dots, column_chars=INFO_COLUMN_CHARS):
+    """Dots that pad an info line out to the full width of the column.
+    text_around_dots is everything else on that line -- the ". " gutter, the
+    label, the ":" and the value -- so the padded leader spans the whole gap
+    and the value lands on the column's right edge."""
+    padding = len(LEADER_PADDING) * 2
+    dots = max(MIN_DOTS, column_chars - len(text_around_dots) - padding)
+    return LEADER_PADDING + "." * dots + LEADER_PADDING
+
+
+def _visible_text(node):
+    """A tspan's own text plus the loose text following it, minus the newlines
+    that only exist to keep the template readable."""
+    return ((node.text or "") + (node.tail or "")).replace("\n", "")
+
+
+def info_lines(text_element):
+    """Group the info block's flat tspan children into visual lines. A line
+    starts at each tspan that resets x to the left edge of the column."""
+    lines = []
+    for node in text_element:
+        if node.get("x") == INFO_COLUMN_X:
+            lines.append([])
+        if lines:
+            lines[-1].append(node)
+    return lines
+
+
+def refill_dot_leaders(root):
+    """Resize every dot leader to match the text now sitting on its line.
+    Run this after the live values are in place -- the dots are measured from
+    the template itself, so static rows stay correct without being duplicated
+    here, and the Lines of Code row's trailing "( ++, -- )" is counted too."""
+    for text_element in root.findall(f"{SVG_NS}text"):
+        for line in info_lines(text_element):
+            dots = next(
+                (n for n in line if (n.get("id") or "").endswith("_dots")), None
+            )
+            if dots is None:
+                continue
+            around = "".join(
+                (dots.tail or "").replace("\n", "") if n is dots else _visible_text(n)
+                for n in line
+            )
+            dots.text = dot_leader(around)
 
 
 def simple_request(func_name, query, variables):
@@ -75,10 +143,10 @@ def follower_getter(username):
 
 
 def graph_repos_stars(count_type, owner_affiliation):
-    """Returns the total repository count, total star count, or total disk
-    usage (in KB) for the configured user, for the given ownership
-    affiliation(s)."""
-    if count_type not in ("repos", "stars", "disk_usage"):
+    """Returns the total repository count, total star count, total fork
+    count, or total disk usage (in KB) for the configured user, for the
+    given ownership affiliation(s)."""
+    if count_type not in ("repos", "stars", "forks", "disk_usage"):
         raise ValueError(f"unknown count_type: {count_type}")
     query = """
     query ($owner_affiliation: [RepositoryAffiliation], $login: String!) {
@@ -91,6 +159,7 @@ def graph_repos_stars(count_type, owner_affiliation):
                             stargazers {
                                 totalCount
                             }
+                            forkCount
                             diskUsage
                         }
                     }
@@ -105,6 +174,8 @@ def graph_repos_stars(count_type, owner_affiliation):
         return data["totalCount"]
     if count_type == "stars":
         return sum(edge["node"]["stargazers"]["totalCount"] for edge in data["edges"])
+    if count_type == "forks":
+        return sum(edge["node"]["forkCount"] for edge in data["edges"])
     return sum(edge["node"]["diskUsage"] or 0 for edge in data["edges"])
 
 
@@ -120,6 +191,36 @@ def gist_counter(username):
     }"""
     request = simple_request(gist_counter.__name__, query, {"login": username})
     return int(request.json()["data"]["user"]["gists"]["totalCount"])
+
+
+def organization_counter(username):
+    """Returns the number of organizations the given user belongs to."""
+    query = """
+    query($login: String!){
+        user(login: $login) {
+            organizations {
+                totalCount
+            }
+        }
+    }"""
+    request = simple_request(organization_counter.__name__, query, {"login": username})
+    return int(request.json()["data"]["user"]["organizations"]["totalCount"])
+
+
+def starred_repos_counter(username):
+    """Returns the number of repositories the given user has starred."""
+    query = """
+    query($login: String!){
+        user(login: $login) {
+            starredRepositories {
+                totalCount
+            }
+        }
+    }"""
+    request = simple_request(
+        starred_repos_counter.__name__, query, {"login": username}
+    )
+    return int(request.json()["data"]["user"]["starredRepositories"]["totalCount"])
 
 
 def format_disk_usage(kilobytes):
@@ -373,23 +474,41 @@ def svg_overwrite(
     wakatime_top_language,
     gist_data,
     disk_usage_data,
+    fork_data,
+    org_data,
+    starred_data,
+    age_data,
 ):
-    """Parses an SVG template and fills in the live stats."""
+    """Parses an SVG template and fills in the live stats. Every info row is
+    padded to the same character count, so the values line up on the column's
+    right edge without needing to be anchored there."""
     tree = etree.parse(filename)
     root = tree.getroot()
-    justify_format(root, "repo_data", repo_data, 10)
-    justify_format(root, "contrib_data", contrib_data, 10)
-    justify_format(root, "star_data", star_data, 10)
-    justify_format(root, "follower_data", follower_data, 10)
-    justify_format(root, "commit_data", commit_data, 14)
-    justify_format(root, "loc_data", loc_data[2], 10)
-    find_and_replace(root, "loc_add", format_number(loc_data[0]))
-    justify_format(root, "loc_del", loc_data[1], 8)
-    justify_format(root, "wakatime_data", wakatime_total, 14)
-    justify_format(root, "wakatime_avg_data", wakatime_daily_average, 14)
-    justify_format(root, "wakatime_lang_data", wakatime_top_language, 14)
-    justify_format(root, "gist_data", gist_data, 10)
-    justify_format(root, "disk_data", disk_usage_data, 10)
+
+    fields = [
+        ("age_data", age_data),
+        ("repo_data", format_number(repo_data)),
+        ("contrib_data", format_number(contrib_data)),
+        ("star_data", format_number(star_data)),
+        ("fork_data", format_number(fork_data)),
+        ("org_data", format_number(org_data)),
+        ("follower_data", format_number(follower_data)),
+        ("commit_data", format_number(commit_data)),
+        ("gist_data", format_number(gist_data)),
+        ("starred_data", format_number(starred_data)),
+        ("disk_data", disk_usage_data),
+        ("wakatime_data", wakatime_total),
+        ("wakatime_avg_data", wakatime_daily_average),
+        ("wakatime_lang_data", wakatime_top_language),
+        ("loc_data", format_number(loc_data[2])),
+        ("loc_add", format_number(loc_data[0])),
+        ("loc_del", format_number(loc_data[1])),
+    ]
+    for element_id, value in fields:
+        find_and_replace(root, element_id, value)
+
+    refill_dot_leaders(root)
+
     tree.write(filename, encoding="utf-8", xml_declaration=True)
 
 
@@ -404,6 +523,7 @@ def main():
     )
     commit_data = commit_counter(cache_file)
     star_data = graph_repos_stars("stars", ["OWNER"])
+    fork_data = graph_repos_stars("forks", ["OWNER"])
     repo_data = graph_repos_stars("repos", ["OWNER"])
     contrib_data = graph_repos_stars(
         "repos", ["OWNER", "COLLABORATOR", "ORGANIZATION_MEMBER"]
@@ -411,9 +531,12 @@ def main():
     disk_usage_kb = graph_repos_stars("disk_usage", ["OWNER"])
     follower_data = follower_getter(USER_NAME)
     gist_data = gist_counter(USER_NAME)
+    org_data = organization_counter(USER_NAME)
+    starred_data = starred_repos_counter(USER_NAME)
     wakatime_total, wakatime_daily_average, wakatime_top_language = wakatime_stats(
         WAKATIME_API_KEY
     )
+    age_data = daily_age(BIRTHDAY)
 
     for svg_file in ("dark_mode.svg", "light_mode.svg"):
         svg_overwrite(
@@ -429,6 +552,10 @@ def main():
             wakatime_top_language,
             gist_data,
             format_disk_usage(disk_usage_kb),
+            fork_data,
+            org_data,
+            starred_data,
+            age_data,
         )
 
 
