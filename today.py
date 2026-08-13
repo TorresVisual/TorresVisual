@@ -201,7 +201,10 @@ def graph_repos_stars(count_type, owner_affiliation):
 
 
 def gist_counter(username):
-    """Returns the number of public gists owned by the given user."""
+    """Returns the number of public gists owned by the given user, or 0 if
+    the token lacks the scope to read it (a fine-grained PAT needs the
+    "Gists" account permission; GitHub returns this field as null,
+    with an HTTP 200, rather than failing the whole request)."""
     query = """
     query($login: String!){
         user(login: $login) {
@@ -211,11 +214,13 @@ def gist_counter(username):
         }
     }"""
     request = simple_request(gist_counter.__name__, query, {"login": username})
-    return int(request.json()["data"]["user"]["gists"]["totalCount"])
+    gists = request.json()["data"]["user"]["gists"]
+    return gists["totalCount"] if gists else 0
 
 
 def organization_counter(username):
-    """Returns the number of organizations the given user belongs to."""
+    """Returns the number of organizations the given user belongs to, or 0
+    if the token lacks the scope to read it (see gist_counter)."""
     query = """
     query($login: String!){
         user(login: $login) {
@@ -225,11 +230,14 @@ def organization_counter(username):
         }
     }"""
     request = simple_request(organization_counter.__name__, query, {"login": username})
-    return int(request.json()["data"]["user"]["organizations"]["totalCount"])
+    organizations = request.json()["data"]["user"]["organizations"]
+    return organizations["totalCount"] if organizations else 0
 
 
 def starred_repos_counter(username):
-    """Returns the number of repositories the given user has starred."""
+    """Returns the number of repositories the given user has starred, or 0
+    if the token lacks the scope to read it (a fine-grained PAT needs the
+    "Starring" account permission; see gist_counter)."""
     query = """
     query($login: String!){
         user(login: $login) {
@@ -241,7 +249,8 @@ def starred_repos_counter(username):
     request = simple_request(
         starred_repos_counter.__name__, query, {"login": username}
     )
-    return int(request.json()["data"]["user"]["starredRepositories"]["totalCount"])
+    starred = request.json()["data"]["user"]["starredRepositories"]
+    return starred["totalCount"] if starred else 0
 
 
 def format_disk_usage(kilobytes):
