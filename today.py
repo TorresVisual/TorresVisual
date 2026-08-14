@@ -20,6 +20,15 @@ RETRYABLE_STATUS_CODES = {502, 503, 504}
 MAX_RETRIES = 3
 RETRY_BACKOFF_SECONDS = 2
 
+# GitHub diffs every commit server-side to answer additions/deletions, so a
+# page of commit history costs its backend roughly the size of the diffs on
+# that page. Repos holding very large commits (vendored assets, generated
+# code, an imported history) blow past the backend's internal time budget and
+# come back as a 502 however many times the identical request is retried --
+# the request has to get cheaper. Asking for fewer commits per page does
+# exactly that, so a stubborn page steps down this ladder before we give up.
+LOC_PAGE_SIZES = (100, 50, 25, 10)
+
 SVG_NS = "{http://www.w3.org/2000/svg}"
 
 # The info column is a plain monospace character grid. Every Consolas glyph --
@@ -289,6 +298,12 @@ def force_close_file(data, cache_file):
     )
 
 
+class RepoWalkError(Exception):
+    """One repository's commit history could not be walked. Non-fatal: the
+    caller keeps that repo's previously cached numbers and carries on, so a
+    single unwalkable repo doesn't cost us the whole card."""
+
+
 def recursive_loc(
     owner,
     repo_name,
@@ -300,16 +315,17 @@ def recursive_loc(
     my_commits=0,
     cursor=None,
 ):
-    """Walks a repository's default-branch commit history 100 commits at a
-    time via GraphQL cursor pagination, summing additions/deletions for
-    commits authored by owner_id."""
+    """Walks a repository's default-branch commit history a page at a time
+    via GraphQL cursor pagination, summing additions/deletions for commits
+    authored by owner_id. Raises RepoWalkError if GitHub keeps failing to
+    diff a page even at the smallest page size."""
     query = """
-    query ($repo_name: String!, $owner: String!, $cursor: String) {
+    query ($repo_name: String!, $owner: String!, $cursor: String, $page_size: Int!) {
         repository(name: $repo_name, owner: $owner) {
             defaultBranchRef {
                 target {
                     ... on Commit {
-                        history(first: 100, after: $cursor) {
+                        history(first: $page_size, after: $cursor) {
                             edges {
                                 node {
                                     ... on Commit {
@@ -334,17 +350,32 @@ def recursive_loc(
             }
         }
     }"""
-    variables = {"repo_name": repo_name, "owner": owner, "cursor": cursor}
-    request = post_graphql_with_retry(query, variables)
-    if request.status_code != 200:
-        force_close_file(data, cache_file)
-        if request.status_code == 403:
+    for page_size in LOC_PAGE_SIZES:
+        variables = {
+            "repo_name": repo_name,
+            "owner": owner,
+            "cursor": cursor,
+            "page_size": page_size,
+        }
+        request = post_graphql_with_retry(query, variables)
+        if request.status_code == 200:
+            break
+        # Anything that isn't a transient backend failure won't be fixed by
+        # asking for less, so it stays fatal.
+        if request.status_code not in RETRYABLE_STATUS_CODES:
+            force_close_file(data, cache_file)
+            if request.status_code == 403:
+                raise Exception(
+                    "Too many requests in a short amount of time! "
+                    "You've hit the non-documented anti-abuse limit!"
+                )
             raise Exception(
-                "Too many requests in a short amount of time! "
-                "You've hit the non-documented anti-abuse limit!"
+                "recursive_loc() has failed with a", request.status_code, request.text
             )
-        raise Exception(
-            "recursive_loc() has failed with a", request.status_code, request.text
+    else:
+        raise RepoWalkError(
+            f"{owner}/{repo_name} still failed at {LOC_PAGE_SIZES[-1]} commits "
+            f"per page with a {request.status_code}"
         )
 
     default_branch = request.json()["data"]["repository"]["defaultBranchRef"]
@@ -401,9 +432,16 @@ def cache_builder(edges, owner_id, cache_file, force_cache=False):
         if int(total_commits) != current_total:
             cached = False
             owner, repo_name = edges[index]["node"]["nameWithOwner"].split("/")
-            additions, deletions, my_commits = recursive_loc(
-                owner, repo_name, owner_id, cache_file, data
-            )
+            try:
+                additions, deletions, my_commits = recursive_loc(
+                    owner, repo_name, owner_id, cache_file, data
+                )
+            except RepoWalkError as error:
+                # Leave this repo's cached line untouched. Its commit count
+                # stays stale, so the next run picks the walk up again -- and
+                # meanwhile every other repo still makes it onto the card.
+                print("Skipping", f"{owner}/{repo_name}:", error)
+                continue
             data[index] = f"{repo_hash} {current_total} {my_commits} {additions} {deletions}\n"
 
     with open(cache_file, "w") as f:
