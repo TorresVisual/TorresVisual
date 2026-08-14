@@ -138,10 +138,33 @@ def post_graphql_with_retry(query, variables):
     return request
 
 
+def log_graphql_errors(func_name, request):
+    """Prints any per-field failures GitHub reported alongside the data.
+
+    A GraphQL response can carry both `data` and `errors`: GitHub answers
+    HTTP 200, fills in what it could, and explains the rest here. Because a
+    failure on a non-null field (`stargazers`, `forkCount`) propagates the
+    null up to the nearest nullable parent, one of these errors can empty out
+    a whole repository node -- so this array is the only account of why a
+    number came back short, and it is worth the noise in the log."""
+    try:
+        errors = request.json().get("errors")
+    except ValueError:  # an error page rather than a GraphQL response
+        return
+    if not errors:
+        return
+    print(f"{func_name}: GitHub reported {len(errors)} GraphQL error(s):")
+    for error in errors:
+        path = ".".join(str(step) for step in error.get("path") or [])
+        location = f" at {path}" if path else ""
+        print(f"  [{error.get('type', 'ERROR')}]{location}: {error.get('message', '')}")
+
+
 def simple_request(func_name, query, variables):
     """Returns a request, or raises an Exception if the response does not succeed."""
     request = post_graphql_with_retry(query, variables)
     if request.status_code == 200:
+        log_graphql_errors(func_name, request)
         return request
     raise Exception(func_name, "has failed with a", request.status_code, request.text)
 
@@ -173,16 +196,25 @@ def follower_getter(username):
 
 
 def readable_nodes(edges):
-    """The repository nodes GitHub actually handed back. A repository can sit
-    in the connection while its node resolves to null -- a fine-grained PAT
-    without access to that specific repo, or one deleted or made private
-    while the query ran -- and GitHub reports that as an HTTP 200 with a null
-    node rather than failing the request. A null node carries no name to hash
-    and no numbers to add up, so there is nothing to do but leave it out."""
+    """The repository nodes GitHub actually handed back.
+
+    A repository can sit in the connection while its node resolves to null.
+    Selecting a non-null field (`stargazers`, `forkCount`) means any failure
+    on that field propagates its null up to the nearest nullable parent --
+    the node -- so a single failed field empties the whole repository rather
+    than just itself. GitHub reports this as an HTTP 200 and puts the reason
+    in the response's `errors` array, which log_graphql_errors prints.
+
+    A null node carries no name to hash and no numbers to add up, so there is
+    nothing to do here but leave it out and say so: the totals that follow
+    are short by however many this drops."""
     nodes = [edge["node"] for edge in edges if edge["node"] is not None]
     unreadable = len(edges) - len(nodes)
     if unreadable:
-        print(f"Skipping {unreadable} repository node(s) the token cannot read")
+        print(
+            f"Skipping {unreadable} of {len(edges)} repository node(s) GitHub "
+            "returned as null -- the totals below are incomplete"
+        )
     return nodes
 
 
@@ -376,6 +408,7 @@ def recursive_loc(
         }
         request = post_graphql_with_retry(query, variables)
         if request.status_code == 200:
+            log_graphql_errors(f"recursive_loc({owner}/{repo_name})", request)
             break
         # Anything that isn't a transient backend failure won't be fixed by
         # asking for less, so it stays fatal.
