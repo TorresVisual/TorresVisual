@@ -172,6 +172,20 @@ def follower_getter(username):
     return int(request.json()["data"]["user"]["followers"]["totalCount"])
 
 
+def readable_nodes(edges):
+    """The repository nodes GitHub actually handed back. A repository can sit
+    in the connection while its node resolves to null -- a fine-grained PAT
+    without access to that specific repo, or one deleted or made private
+    while the query ran -- and GitHub reports that as an HTTP 200 with a null
+    node rather than failing the request. A null node carries no name to hash
+    and no numbers to add up, so there is nothing to do but leave it out."""
+    nodes = [edge["node"] for edge in edges if edge["node"] is not None]
+    unreadable = len(edges) - len(nodes)
+    if unreadable:
+        print(f"Skipping {unreadable} repository node(s) the token cannot read")
+    return nodes
+
+
 def graph_repos_stars(count_type, owner_affiliation):
     """Returns the total repository count, total star count, total fork
     count, or total disk usage (in KB) for the configured user, for the
@@ -201,12 +215,15 @@ def graph_repos_stars(count_type, owner_affiliation):
     request = simple_request(graph_repos_stars.__name__, query, variables)
     data = request.json()["data"]["user"]["repositories"]
     if count_type == "repos":
+        # GitHub's own count for the account, so it stands even when some of
+        # the individual nodes below come back null.
         return data["totalCount"]
+    nodes = readable_nodes(data["edges"])
     if count_type == "stars":
-        return sum(edge["node"]["stargazers"]["totalCount"] for edge in data["edges"])
+        return sum(node["stargazers"]["totalCount"] for node in nodes)
     if count_type == "forks":
-        return sum(edge["node"]["forkCount"] for edge in data["edges"])
-    return sum(edge["node"]["diskUsage"] or 0 for edge in data["edges"])
+        return sum(node["forkCount"] for node in nodes)
+    return sum(node["diskUsage"] or 0 for node in nodes)
 
 
 def starred_repos_counter(username):
@@ -491,7 +508,13 @@ def loc_query(owner_affiliation, owner_id, cache_file, cursor=None, edges=None):
     }
     request = simple_request(loc_query.__name__, query, variables)
     repositories = request.json()["data"]["user"]["repositories"]
-    edges = edges + repositories["edges"]
+    # Drop unreadable repositories here, before flush_cache and cache_builder
+    # start indexing into them. Filtering at the point of collection also
+    # keeps edges lined up with the cache's lines: if the readable set
+    # shrinks, cache_builder's length check rebuilds the file.
+    edges = edges + [
+        {"node": node} for node in readable_nodes(repositories["edges"])
+    ]
     if repositories["pageInfo"]["hasNextPage"]:
         return loc_query(
             owner_affiliation,
