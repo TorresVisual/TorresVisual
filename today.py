@@ -232,9 +232,7 @@ def graph_repos_stars(count_type, owner_affiliation):
                 edges {
                     node {
                         ... on Repository {
-                            stargazers {
-                                totalCount
-                            }
+                            stargazerCount
                             forkCount
                             diskUsage
                         }
@@ -252,7 +250,7 @@ def graph_repos_stars(count_type, owner_affiliation):
         return data["totalCount"]
     nodes = readable_nodes(data["edges"])
     if count_type == "stars":
-        return sum(node["stargazers"]["totalCount"] for node in nodes)
+        return sum(node["stargazerCount"] for node in nodes)
     if count_type == "forks":
         return sum(node["forkCount"] for node in nodes)
     return sum(node["diskUsage"] or 0 for node in nodes)
