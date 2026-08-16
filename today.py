@@ -123,14 +123,21 @@ def refill_dot_leaders(root):
 
 
 def post_graphql_with_retry(query, variables):
-    """POSTs a GraphQL query, retrying transient 502/503/504 responses from
-    GitHub's API with a short exponential backoff before giving up."""
+    """POSTs a GraphQL query, retrying transient 502/503/504 responses and
+    dropped connections from GitHub's API with a short exponential backoff
+    before giving up."""
     for attempt in range(MAX_RETRIES):
-        request = requests.post(
-            "https://api.github.com/graphql",
-            json={"query": query, "variables": variables},
-            headers=HEADERS,
-        )
+        try:
+            request = requests.post(
+                "https://api.github.com/graphql",
+                json={"query": query, "variables": variables},
+                headers=HEADERS,
+            )
+        except requests.exceptions.RequestException:
+            if attempt == MAX_RETRIES - 1:
+                raise
+            time.sleep(RETRY_BACKOFF_SECONDS * (2**attempt))
+            continue
         if request.status_code not in RETRYABLE_STATUS_CODES:
             return request
         if attempt < MAX_RETRIES - 1:
