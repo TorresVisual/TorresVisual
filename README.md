@@ -1,6 +1,6 @@
 <a href="https://github.com/TorresVisual/TorresVisual">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/TorresVisual/TorresVisual/main/dark_mode.svg?1787447844">
-    <img alt="TorresVisual's GitHub Profile" src="https://raw.githubusercontent.com/TorresVisual/TorresVisual/main/light_mode.svg?1787447844">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/TorresVisual/TorresVisual/main/dark_mode.svg?1787534154">
+    <img alt="TorresVisual's GitHub Profile" src="https://raw.githubusercontent.com/TorresVisual/TorresVisual/main/light_mode.svg?1787534154">
   </picture>
 </a>
