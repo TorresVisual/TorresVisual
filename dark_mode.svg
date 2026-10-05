@@ -51,7 +51,7 @@ text, tspan {white-space: pre;}
 <tspan x="507.5" y="30.00" class="cc">. </tspan><tspan class="key">Uptime</tspan>:<tspan class="cc" id="age_data_dots"> .................... </tspan><tspan class="value" id="age_data">19 years, 4 months, 18 days</tspan>
 <tspan x="507.5" y="45.67" class="cc">. </tspan><tspan class="key">Model</tspan>:<tspan class="cc" id="model_dots"> ............................................ </tspan><tspan class="value">Male</tspan>
 <tspan x="507.5" y="61.34" class="cc">. </tspan><tspan class="key">Class</tspan>:<tspan class="cc" id="class_dots"> ........................ </tspan><tspan class="value">Computer Science Student</tspan>
-<tspan x="507.5" y="92.68" class="cc">. </tspan><tspan class="key">Languages.Programming</tspan>:<tspan class="cc" id="programming_dots"> .................. </tspan><tspan class="value">C, C++, Python, Java</tspan>
+<tspan x="507.5" y="92.68" class="cc">. </tspan><tspan class="key">Languages.Programming</tspan>:<tspan class="cc" id="programming_dots"> .................. </tspan><tspan class="value">C, C++, Python</tspan>
 <tspan x="507.5" y="112.68" class="cc">. </tspan><tspan class="key">Languages.Real</tspan>:<tspan class="cc" id="real_dots"> ........................ </tspan><tspan class="value">German, English</tspan>
 <tspan x="507.5" y="144.02">- Contact</tspan> -——————————————————————————————————————————————-
 <tspan x="507.5" y="164.02" class="cc">. </tspan><tspan class="key">Email</tspan>:<tspan class="cc" id="email_dots"> ......................... </tspan><tspan class="value">torresvisuals@proton.me</tspan>
