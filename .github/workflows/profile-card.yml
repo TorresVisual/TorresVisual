@@ -26,7 +26,6 @@ jobs:
       - name: Update profile card
         env:
           ACCESS_TOKEN: ${{ secrets.PAT_TOKEN }}
-          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
           USER_NAME: ${{ github.repository_owner }}
         run: python today.py
 

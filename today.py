@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import os
+import re
 import time
 
 import requests
@@ -9,7 +10,9 @@ from lxml import etree
 
 HEADERS = {"authorization": "token " + os.environ.get("ACCESS_TOKEN", "")}
 USER_NAME = os.environ.get("USER_NAME", "TorresVisual")
-WAKATIME_API_KEY = os.environ.get("WAKATIME_API_KEY", "")
+ACTIVITY_GIST_RAW = (
+    "https://gist.githubusercontent.com/TorresVisual/977112be4262c189d3f9edcfc7d690e7/raw"
+)
 BIRTHDAY = datetime.datetime(2007, 5, 17)
 
 # GitHub's GraphQL API occasionally 502s on expensive queries (e.g. walking
@@ -571,23 +574,22 @@ def commit_counter(cache_file):
     return sum(int(line.split()[2]) for line in data)
 
 
-def wakatime_stats(api_key):
-    """Returns (total, daily_average, top_language) from WakaTime's
-    all-time stats: human-readable total coding time, human-readable
-    average coding time per day, and the name of the most-used language
-    ('N/A' if no language data is available)."""
-    response = requests.get(
-        "https://wakatime.com/api/v1/users/current/stats/all_time",
-        params={"api_key": api_key},
-    )
-    if response.status_code != 200:
-        raise Exception(
-            "wakatime_stats() has failed with a", response.status_code, response.text
-        )
-    data = response.json()["data"]
-    languages = data.get("languages") or []
-    top_language = languages[0]["name"] if languages else "N/A"
-    return data["human_readable_total"], data["human_readable_daily_average"], top_language
+def null_activity_stats():
+    """Returns (total, daily_average, top_language) read from the Null Activity
+    badge SVGs in the public gist: human-readable total coding time, average
+    coding time per day, and the most-used language (as the badge spells it)."""
+    values = []
+    for name in ("total", "daily-average", "top-language"):
+        response = requests.get(f"{ACTIVITY_GIST_RAW}/null-activity-{name}.svg")
+        if response.status_code != 200:
+            raise Exception(
+                "null_activity_stats() has failed with a",
+                response.status_code,
+                response.text,
+            )
+        # aria-label is "<label>: <value>"
+        values.append(re.search(r'aria-label="[^:"]*: ([^"]+)"', response.text).group(1))
+    return tuple(values)
 
 
 def svg_overwrite(
@@ -598,9 +600,9 @@ def svg_overwrite(
     contrib_data,
     follower_data,
     loc_data,
-    wakatime_total,
-    wakatime_daily_average,
-    wakatime_top_language,
+    activity_total,
+    activity_daily_average,
+    activity_top_language,
     disk_usage_data,
     fork_data,
     starred_data,
@@ -624,9 +626,9 @@ def svg_overwrite(
         ("streak_data", streak_data),
         ("starred_data", format_number(starred_data)),
         ("disk_data", disk_usage_data),
-        ("wakatime_data", wakatime_total),
-        ("wakatime_avg_data", wakatime_daily_average),
-        ("wakatime_lang_data", wakatime_top_language),
+        ("activity_data", activity_total),
+        ("activity_avg_data", activity_daily_average),
+        ("activity_lang_data", activity_top_language),
         ("loc_data", format_number(loc_data[2])),
         ("loc_add", format_number(loc_data[0])),
         ("loc_del", format_number(loc_data[1])),
@@ -660,9 +662,7 @@ def main():
     starred_data = starred_repos_counter(USER_NAME)
     streak_days = contribution_streak(USER_NAME)
     streak_data = f"{streak_days} day{format_plural(streak_days)}"
-    wakatime_total, wakatime_daily_average, wakatime_top_language = wakatime_stats(
-        WAKATIME_API_KEY
-    )
+    activity_total, activity_daily_average, activity_top_language = null_activity_stats()
     age_data = daily_age(BIRTHDAY)
 
     for svg_file in ("dark_mode.svg", "light_mode.svg"):
@@ -674,9 +674,9 @@ def main():
             contrib_data,
             follower_data,
             loc_data[:3],
-            wakatime_total,
-            wakatime_daily_average,
-            wakatime_top_language,
+            activity_total,
+            activity_daily_average,
+            activity_top_language,
             format_disk_usage(disk_usage_kb),
             fork_data,
             starred_data,
