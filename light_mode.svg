@@ -69,8 +69,8 @@ text, tspan {white-space: pre;}
 <tspan x="507.5" y="403.40" class="cc">. </tspan><tspan class="key">Starred Repos</tspan>:<tspan class="cc" id="starred_data_dots"> ...................................... </tspan><tspan class="value" id="starred_data">10</tspan>
 <tspan x="507.5" y="419.07" class="cc">. </tspan><tspan class="key">Total Disk Usage</tspan>:<tspan class="cc" id="disk_data_dots"> ............................... </tspan><tspan class="value" id="disk_data">1.3 GB</tspan>
 <tspan x="507.5" y="454.74">- Null Activity</tspan> -————————————————————————————————————————-
-<tspan x="507.5" y="470.41" class="cc">. </tspan><tspan class="key">Coding Time</tspan>:<tspan class="cc" id="activity_data_dots"> .................................. </tspan><tspan class="value" id="activity_data">767h 38m</tspan>
-<tspan x="507.5" y="486.08" class="cc">. </tspan><tspan class="key">Daily Average</tspan>:<tspan class="cc" id="activity_avg_data_dots"> .................................. </tspan><tspan class="value" id="activity_avg_data">2h 47m</tspan>
-<tspan x="507.5" y="501.75" class="cc">. </tspan><tspan class="key">Top Language</tspan>:<tspan class="cc" id="activity_lang_data_dots"> ...................................... </tspan><tspan class="value" id="activity_lang_data">cpp</tspan>
+<tspan x="507.5" y="474.74" class="cc">. </tspan><tspan class="key">Coding Time</tspan>:<tspan class="cc" id="activity_data_dots"> .................................. </tspan><tspan class="value" id="activity_data">767h 38m</tspan>
+<tspan x="507.5" y="490.41" class="cc">. </tspan><tspan class="key">Daily Average</tspan>:<tspan class="cc" id="activity_avg_data_dots"> .................................. </tspan><tspan class="value" id="activity_avg_data">2h 47m</tspan>
+<tspan x="507.5" y="506.08" class="cc">. </tspan><tspan class="key">Top Language</tspan>:<tspan class="cc" id="activity_lang_data_dots"> ...................................... </tspan><tspan class="value" id="activity_lang_data">cpp</tspan>
 </text>
 </svg>
